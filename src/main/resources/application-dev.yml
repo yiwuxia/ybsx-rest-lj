@@ -1,0 +1,25 @@
+# 端口号
+server:
+  port: 8081
+
+myYml:
+  tempDir: /data/baika_temp/
+  smsUrl: http://192.168.2.31:18080/sms/send/verifyCode
+  datasource:
+    url: jdbc:mysql://10.9.149.173:3306/logstatic?useUnicode=true&characterEncoding=UTF-8
+    username: kone
+    password: kone.456
+    driver: com.mysql.jdbc.Driver
+  datasource2:
+    url: jdbc:mysql://10.9.149.173:3306/kone?useUnicode=true&characterEncoding=UTF-8
+    username: kone
+    password: kone.456
+    driver: com.mysql.jdbc.Driver
+  seaweed:
+    serverIp: 192.168.2.11
+    assignPort: 9333
+    deletePort: 8060
+    publicUrl: http://192.168.2.11:8060
+  redis:
+    host: 127.0.0.1
+    port: 6379
