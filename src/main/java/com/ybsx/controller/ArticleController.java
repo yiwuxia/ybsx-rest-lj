@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,23 +21,25 @@ import org.springframework.web.bind.annotation.RestController;
 import com.redare.devframework.common.pojo.CommonResult;
 import com.redare.devframework.common.pojo.Page;
 import com.ybsx.dao.ArticleDao;
+import com.ybsx.entity.PostStaticInfo;
 import com.ybsx.entity.ResultMap;
 import com.ybsx.entity.StaticPUV;
 import com.ybsx.entity.StaticVo;
 import com.ybsx.entity.StaticVo2;
 import com.ybsx.service.ArticleService;
 import com.ybsx.util.BDKeyExtract;
+import com.ybsx.util.StringUtil;
 
 
 /**
  * 投诉控制器
- * @author zhouKai
  * @createDate 2018年4月19日 上午11:28:09
  */
 @RestController
 @RequestMapping(value = "/static")
 public class ArticleController {
 
+	
 
 	@Autowired
 	private ArticleService articleService;
@@ -74,20 +77,35 @@ public class ArticleController {
 		return CommonResult.returnSuccessWrapper(map);
 		
 	}
-		//给LWW供的接口
+	
+		/*
+		 * 			String startDate,
+					String endDate,
+					String type,
+					String title,//add by lijin @2018年10月11日14:10:43 for yys要求
+		 */
+		//给XX供的接口
 		@RequestMapping(value = "/getVedioPage",method = RequestMethod.POST)
-		public ResultMap getStatic(String name,
-				String startDate,
-				String endDate,
-				String type,
-				String title,//add by lijin @2018年10月11日14:10:43 for yys要求
-				int page,
-				int limit){
-			Page<StaticVo2> pages=	articleService.getVedioPage( name, startDate, endDate,type,title, page, limit);
-		  	ResultMap<StaticVo2> resultMap=ResultMap.getSuccessResultMap();
-		  	resultMap.setCount(pages.getTotalCount());
-		  	resultMap.setData(pages.getResult());
-			return resultMap;
+		public CommonResult getStatic(
+				@RequestParam(value="startDate",defaultValue="",required=false) String  startDate,// 开始日期
+				@RequestParam(value="endDate",defaultValue="",required=false) String endDate,//结束日期
+				@RequestParam(value="author",defaultValue="",required=false) String author,//作者
+				@RequestParam(value="title",defaultValue="",required=false) String title,//标题 
+				@RequestParam(value="groupName",defaultValue="",required=false) String groupName,//团队 
+				@RequestParam(value="type",defaultValue="1") int type,//文章1  视频2 
+				@RequestParam(value="page", defaultValue="1") int page,
+				@RequestParam(value="limit", defaultValue="10") int limit
+				){
+			
+			Page<PostStaticInfo> pages=	articleService.getVedioPage(type ,page, limit,groupName,title,author,endDate,startDate);
+			for (PostStaticInfo info : pages.getResult()) {
+				 info.setAvgExpireRate(StringUtil.transSecondToMS(Double.valueOf(info.getAvgExpireRate())));
+				 info.setForwardRate(StringUtil.tranToPercent(Double.valueOf(info.getForwardRate())));
+				 info.setShareRate(StringUtil.tranToPercent(Double.valueOf(info.getShareRate())));
+				 info.setAvgPlayRate(StringUtil.tranToPercent(Double.valueOf(info.getAvgPlayRate())));
+				 info.setPlayEndRate(StringUtil.tranToPercent(Double.valueOf(info.getPlayEndRate())));
+			}
+			return CommonResult.returnSuccessWrapper(pages);
 		}
 	
 	
@@ -160,9 +178,11 @@ public class ArticleController {
 		 */
 		@PostMapping("/getMostSimilarity")
 		public CommonResult getMostSimilarity(
-				@RequestParam(value="id") int id
+				@RequestParam(value="id",required=false,defaultValue="0") int id,//文章id
+				@RequestParam(value="gid",required=false,defaultValue="0") int gid,//分组id
+				@RequestParam(value="userId") int userId//当前用户id
 				)  {
-			List<Integer> listIds=articleService.getMostSimilarity(id);
+			List<Integer> listIds=articleDao.getMostSimilarity(userId,id);
 			return CommonResult.returnSuccessWrapper(listIds);
 		} 
 }

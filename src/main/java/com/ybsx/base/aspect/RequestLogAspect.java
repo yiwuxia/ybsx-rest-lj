@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -49,7 +48,7 @@ public class RequestLogAspect {
 	 */
 	@Pointcut(value = "execution(public * com.ybsx.controller..*.*(..))")
 	public void requestLog() {
-
+		
 	}
 
 	/**
@@ -82,8 +81,8 @@ public class RequestLogAspect {
 	@AfterReturning(value = "requestLog()", returning = "result")
 	public void doAfterReturning(Object result) {
 		try {
-			logger.info("response json format: " + objectMapper.writeValueAsString(result));
-		} catch (JsonProcessingException e) {
+			//logger.info("response json format: " + objectMapper.writeValueAsString(result));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		logger.info("spend time: " + (System.currentTimeMillis() - this.startTime.get()));

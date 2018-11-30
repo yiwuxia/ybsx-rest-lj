@@ -27,13 +27,15 @@ public class StaticVo2 {
 	private String content;
 	private String pv;//总浏览量
 	private String uv;//总访客量
+	
 	private String avgExpireRate;//平均停留时长
 	private String forwardRate;//推荐页面跳转率
 	private String shareCount;//总分享量
 	private String shareRate;//分享率
 	private String avgPlayRate;//平均播放比率
-	private String unPlayRate;//未播放率
 	private String playEndRate;//完播率
+	
+	private String unPlayRate;//未播放率
 	private String requestUrl;
 	private String status;//是否被冻结
 	private String uid;

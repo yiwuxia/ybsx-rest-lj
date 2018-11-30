@@ -3,6 +3,7 @@ package com.ybsx.service;
 import java.util.List;
 
 import com.redare.devframework.common.pojo.Page;
+import com.ybsx.entity.PostStaticInfo;
 import com.ybsx.entity.StaticPUV;
 import com.ybsx.entity.StaticVo;
 import com.ybsx.entity.StaticVo2;
@@ -40,6 +41,12 @@ public interface ArticleService {
 
 			
 			    /**
+			     * @param startDate 
+			     * @param endDate 
+			     * @param author 
+			     * @param groupName2 
+			     * @param groupName 
+			     * @param limit2 
 			    * @Title: getVedioPage
 			    * @Description: 获取每天视频的播放信息
 			    * @param @param name
@@ -51,7 +58,6 @@ public interface ArticleService {
 			    * @throws
 			    */
 			    
-		Page<StaticVo2> getVedioPage(String name, String startDate, String endDate,String type,String title, int page, int limit);
 
 
 		void saveTags(String tag, String str);
@@ -74,9 +80,12 @@ public interface ArticleService {
 
 
 		void insertRecordToScore(String id);
+
+
+		Page<PostStaticInfo> getVedioPage(int type, int page, int limit, String groupName, String groupName2,
+				String author, String endDate, String startDate);
 			
 
-		List<Integer> getMostSimilarity(int id);
 
 
 	

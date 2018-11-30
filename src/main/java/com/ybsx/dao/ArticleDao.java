@@ -3,6 +3,7 @@ package com.ybsx.dao;
 import java.util.List;
 
 import com.redare.devframework.common.pojo.Page;
+import com.ybsx.entity.PostStaticInfo;
 import com.ybsx.entity.Static;
 import com.ybsx.entity.StaticPUV;
 import com.ybsx.entity.StaticVo;
@@ -52,7 +53,6 @@ public interface ArticleDao {
 			    * @throws
 			    */
 			    
-		Page<StaticVo2> getVedioPage(String name, String startDate, String endDate,String type,String title, int page, int limit);
 
 		void saveTags(String tag, String str);
 
@@ -70,6 +70,11 @@ public interface ArticleDao {
 
 		void insertRecordToScore(int postid);
 
-		List<Integer> getMostSimilarity(int id);
+		List<Integer> getMostSimilarity(int userId, int id);
+
+		void saveToPytonTagTemp(String string, String id);
+
+		Page<PostStaticInfo> getVedioPage(int type, int page, int limit, String groupName, String groupName2,
+				String author, String endDate, String startDate);
 
 }

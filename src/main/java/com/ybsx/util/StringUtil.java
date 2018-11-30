@@ -1,5 +1,9 @@
 package com.ybsx.util;
 
+import java.text.DecimalFormat;
+
+import com.sun.tools.doclets.internal.toolkit.resources.doclets;
+
 /**
  * 字符串工具类
  * @author zhouKai
@@ -38,5 +42,22 @@ public class StringUtil {
 		String out = head.toUpperCase() + in.substring(1, in.length());
 		return out;
 	}
+	
+	/*
+	 * 将秒转为分 秒
+	 */
+	public static String  transSecondToMS(double seconds) {
+			int value=(int)seconds;
+	        int minutes = value / 60;
+	        int remainingSeconds = value % 60;
+	        return minutes+"分"+remainingSeconds+"秒";
+	}
+
+	public static String tranToPercent(Double valueOf) {
+          DecimalFormat df = new DecimalFormat("0.00%");
+          String r = df.format(valueOf);
+          return r;
+	}
+	
 
 }

@@ -2,16 +2,25 @@ package com.ybsx.base.config;
 
 import javax.sql.DataSource;
 
+import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
+import org.apache.mahout.cf.taste.model.JDBCDataModel;
+import org.aspectj.weaver.patterns.ThisOrTargetAnnotationPointcut;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.redare.devframework.common.spring.db.MySqlJdbcHelper;
 import com.redare.devframework.common.spring.db.SpringJdbcHelper;
 import com.ybsx.base.yml.YmlConfig;
+
+import sun.tools.jar.resources.jar;
 
 
 
@@ -72,6 +81,26 @@ public class MasterDataSourceConfig {
 		jdbcHelper.setDataSource(this.masterDataSource());
 		return jdbcHelper;
 	}
+	
+	@Bean
+	public JdbcTemplate jdbcTemplate(){
+		DataSource dataSource=this.masterDataSource();
+		JdbcTemplate template=new JdbcTemplate(dataSource);
+		return template;
+	}
+	
+	
+	
+	/*@Bean
+	public  JDBCDataModel myDataModel() {
+        DataSource dataSource = this.masterDataSource();
+        LijinJdbcModel dataModel = null;
+        dataModel = new LijinJdbcModel(dataSource,"post_preferences", "user_ID", "post_ID","preference",null);
+        return dataModel;
+    } */
+	
+	
+	
 	 
 /*
 	@Bean

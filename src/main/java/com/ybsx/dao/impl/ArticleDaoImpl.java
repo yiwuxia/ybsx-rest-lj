@@ -11,11 +11,15 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.redare.devframework.common.pojo.Page;
 import com.redare.devframework.common.spring.db.SpringJdbcHelper;
+import com.sun.jersey.core.util.StringIgnoreCaseKeyComparator;
+import com.sun.tools.corba.se.idl.constExpr.And;
 import com.ybsx.dao.ArticleDao;
+import com.ybsx.entity.PostStaticInfo;
 import com.ybsx.entity.Static;
 import com.ybsx.entity.StaticPUV;
 import com.ybsx.entity.StaticVo;
@@ -26,6 +30,11 @@ public class ArticleDaoImpl implements ArticleDao {
 
 	@Autowired
 	SpringJdbcHelper jdbcHelper;
+	
+	
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+	
 	
 	/**
 	 * 日志实例
@@ -132,77 +141,6 @@ public class ArticleDaoImpl implements ArticleDao {
 	
 	
 		    
-		/*@Override
-		public Page<StaticVo2> getVedioPage(String name, 
-				String startDate, 
-				String endDate,
-				String type, 
-				String title, 
-				int page, int limit) {
-			StringBuffer sql = new StringBuffer();
-			sql.append(" SELECT  ");
-			sql.append("  a.dateTime, "
-				//	+ "IFNULL(a.requestUrl,concat('http://v.1234tv.com/',p.uid))  requestUrl,"
-				+ "concat('http://v.1234tv.com/',p.uid)  requestUrl,"
-					+ " p.uid,");
-			sql.append("  b.name, ");
-			sql.append(" p.title,p.status, ");
-			if ("2".equals(type)) { //视频的	1介绍 ,2视频
-				sql.append(" p.desc,");
-				sql.append(" p.video, ");
-				sql.append("  a.avgplayRate, ");
-				sql.append("  a.unPlayRate, ");
-				sql.append("  a.playEndRate ,");
-			}
-			if ("1".equals(type)) {
-				sql.append(" p.content, ");//文章	 内容
-			}
-			sql.append("  IFNULL(a.pv,0) pv, ");
-			sql.append("  IFNULL(a.shareCount,0) shareCount, ");
-			sql.append("  IFNULL(a.avgExpireRate,0) avgExpireRate, ");
-			sql.append("  IFNULL(a.forwardRate,0) forwardRate, ");
-			sql.append("  IFNULL(a.shareRate,0) shareRate, ");
-			sql.append("  IFNULL(a.uv,0) uv ");
-			sql.append(" FROM ");
-			sql.append(" ( ");
-			sql.append(" SELECT  ");
-			sql.append(" dateTime,uid, ");
-			sql.append(" SUM(pv) pv, ");
-			sql.append(" SUM(uv) uv, ");
-			sql.append(" SUM(SHARE) shareCount, ");
-			sql.append(" IFNULL(ROUND(SUM(expire)/(SUM(pv)*1000),2),0)  avgExpireRate, ");
-			sql.append(" CONCAT( IFNULL(ROUND(SUM(forward)*100/SUM(pv),2),0.00),'%')   forwardRate, ");
-			sql.append(" CONCAT( IFNULL(ROUND(SUM(SHARE)*100/SUM(pv),2),0.00),'%')   shareRate ");
-			if ("2".equals(type)) {
-				sql.append(" ,CONCAT(IFNULL(ROUND(SUM(playpercent)/SUM(play),2),0.00),'%')   avgplayRate, ");
-				sql.append(" '0.00%'   unPlayRate, ");
-				sql.append(" CONCAT(IFNULL(ROUND(SUM(over_eight)*100/SUM(play),2),0.00),'%')   playEndRate ");
-			}
-		//	sql.append(" FROM t_statics GROUP BY DATETIME,uid,request_url ");
-			sql.append(" FROM t_statics GROUP BY DATETIME,uid ");
-			sql.append(" ) a ");
-			sql.append("   RIGHT JOIN  kone.posts p   on  p.uid=a.uid   ");
-			if (!StringUtils.isEmpty(startDate)) {
-				sql.append(" AND a.datetime>='"+startDate+"' ");
-			}
-			if (!StringUtils.isEmpty(endDate)) {
-				sql.append("	AND a.datetime<='"+endDate+"' ");
-			}
-			sql.append("  INNER JOIN  kone.users b  on  p.user_id=b.id ");
-			//sql.append(" WHERE p.user_id=b.id AND p.uid=a.uid ");
-			if (!StringUtils.isEmpty(name)) {
-				sql.append(" AND b.name LIKE '%"+name+"%' ");
-			}
-			//add by lijin 2018年10月11日14:55:28 start 
-			if (!StringUtils.isEmpty(title)) {
-				sql.append(" AND p.title LIKE '%"+title+"%' ");
-			}
-			//add by lijin 2018年10月11日14:55:28 end
-			sql.append(" where p.type="+Integer.valueOf(type));
-			sql.append(" order by dateTime desc ,uid desc ");
-			logger.info(sql.toString());
-			return  jdbcHelper.queryForPageBean(sql.toString(), StaticVo2.class, page, limit);
-		}*/
 
 	
 		    
@@ -210,7 +148,6 @@ public class ArticleDaoImpl implements ArticleDao {
 		public void saveTags(String tag, String time) {
 		int num=	jdbcHelper.update("INSERT IGNORE INTO kone.tags(NAME,created_at,updated_at)"
 					+ "VALUES('"+tag+"','"+time+"','"+time+"')");
-		System.out.println(num);
 		}
 
 		    
@@ -245,7 +182,6 @@ public class ArticleDaoImpl implements ArticleDao {
 		@Override
 		public String getWord(String uuid) {
 			String sql="select word from t_temp_word where tmp_uuid='"+uuid+"'";
-			System.out.println(sql);
 			List<Map<String, Object>> list_map= jdbcHelper.queryForListMap(sql);
 			String words="";
 			for (Map<String, Object> map : list_map) {
@@ -275,83 +211,64 @@ public class ArticleDaoImpl implements ArticleDao {
 				list.add(map.get("title").toString());
 				list.add(map.get("content").toString());
 			}
-			System.out.println(str);
 			return list;
 		}
 
 		@Override
-		public Page<StaticVo2> getVedioPage(String name, 
-				String startDate, 
-				String endDate,
-				String type, 
-				String title, 
-				int page, int limit) {
-			StringBuffer sql=new StringBuffer();
-			 sql.append(" SELECT p.created_at AS DATETIME, CONCAT('http://v.1234tv.com/', p.uid) AS requestUrl, p.uid ");
-			 sql.append(" , b.NAME, p.title,  p.STATUS ");
-			 sql.append(" , IFNULL(a.pv, 0) AS pv ");
-			 
-			 if ("2".equals(type)) { //视频的	1文章 ,2视频
-					sql.append(" ,p.desc,");
-					sql.append(" p.video, ");
-					sql.append("  a.avgplayRate, ");
-					sql.append("  a.unPlayRate, ");
-					sql.append("  a.playEndRate ");
-			}
-			 if ("1".equals(type)) {
-					//sql.append(" ,p.content");//文章	 内容
-			 }
+		public Page<PostStaticInfo> getVedioPage(int type, int page, int limit,
+				String groupName, String title,
+				String author, String endDate, String startDate) {
 			
-			 sql.append(" , IFNULL(a.shareCount, 0) AS shareCount ");
-			 sql.append(" , IFNULL(a.avgExpireRate, 0) AS avgExpireRate ");
-			 sql.append(" , IFNULL(a.forwardRate, 0) AS forwardRate ");
-			 sql.append(" , IFNULL(a.shareRate, 0) AS shareRate ");
-			 sql.append(" , IFNULL(a.uv, 0) AS uv ");
-			 sql.append(" FROM ( ");
-			 sql.append(" SELECT uid, SUM(pv) AS pv, SUM(uv) AS uv ");
-			 sql.append(" , SUM(SHARE) AS shareCount ");
-			 sql.append(" , IFNULL(ROUND(SUM(expire) / (SUM(pv) * 1000), 2), 0) AS avgExpireRate ");
-			 sql.append(" , CONCAT(IFNULL(ROUND(SUM(forward) * 100 / SUM(pv), 2), 0.00), '%') AS forwardRate ");
-			 sql.append(" , CONCAT(IFNULL(ROUND(SUM(SHARE) * 100 / SUM(pv), 2), 0.00), '%') AS shareRate ");
-			 
-			 if ("2".equals(type)) {
-					sql.append(" ,CONCAT(IFNULL(ROUND(SUM(playpercent)/SUM(play),2),0.00),'%')   avgplayRate, ");
-					sql.append(" '0.00%'   unPlayRate, ");
-					sql.append(" CONCAT(IFNULL(ROUND(SUM(over_eight)*100/SUM(play),2),0.00),'%')   playEndRate ");
-			 }
-			 
-			 sql.append(" FROM t_statics ");
-			 sql.append(" GROUP BY uid ");
-			 sql.append(" ORDER BY NULL ");
-			 sql.append(" ) a ");
-			 sql.append(" RIGHT JOIN  kone.posts p ");
-			 sql.append(" ON p.uid = a.uid ");
-		 	
-		 
-			
-			 sql.append(" AND p.type =  "+Integer.valueOf(type));
-			 sql.append(" INNER JOIN kone.users b ON p.user_id = b.id ");
-			 sql.append(" where 1=1 ");
-		 	if (!StringUtils.isEmpty(name)) {
-				sql.append(" AND   b.name LIKE '%"+name+"%' ");
-			}
-		 	if (!StringUtils.isEmpty(title)) {
-				sql.append(" AND p.title LIKE '%"+title+"%' ");
-			}
-		 	if (!StringUtils.isEmpty(startDate)) {
-		 		startDate=formatDateBySplit(startDate);
-				sql.append(" AND p.created_at>='"+startDate+"' ");
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT   ");
+			sql.append(" 	a1.name groupName,a1.id,a1.uid,a1.title,IFNULL(t2.pv,0) pv,IFNULL(t2.uv,0)uv,"
+					+ "IFNULL(t3.favor,0) favorNum, ");
+			sql.append("   IFNULL(t4.likes,0)  likeNum,IFNULL(t5.comm,0) commentNum, ");
+			sql.append("  a1.created_at  createdAt,a1.author, ");
+			sql.append(" IFNULL(t2.avgExpireRate,0) avgExpireRate,  ");
+			sql.append(" IFNULL(t2.forwardRate,0) forwardRate, ");
+			sql.append(" IFNULL(t2.shareRate,0) shareRate, ");
+			sql.append(" IFNULL(t2.avgplayRate,0) avgplayRate, ");
+			sql.append(" IFNULL(t2.playEndRate,0) playEndRate ,IFNULL(shareCount,0) shareCount");//
+			sql.append(" 	from ( ");
+			sql.append(" 	select t7.name,t1.id,t1.uid,t1.title,t1.created_at,t6.name as author from kone.posts t1, ");
+			sql.append(" 		kone.users t6, ");
+			sql.append(" 		kone.groups t7 ");
+			sql.append(" 	   where  t1.type=  "+type);
+			if (!StringUtils.isEmpty(startDate)) {
+					sql.append(" and t1.created_at>="+startDate);
 			}
 			if (!StringUtils.isEmpty(endDate)) {
-				endDate=formatDateBySplit(endDate);
-				sql.append("  AND p.created_at<='"+endDate+"' ");
+				sql.append(" and t1.created_at<="+endDate);
 			}
-				
-			 sql.append(" ORDER BY p.created_at DESC ");
-			 
-			 logger.info(sql.toString());
-			// System.out.println(sql.toString());
-			return  jdbcHelper.queryForPageBean(sql.toString(), StaticVo2.class, page, limit);
+			if (!StringUtils.isEmpty(author)) {
+				sql.append(" and t6.name like '%"+author+"%'");
+			}
+			if (!StringUtils.isEmpty(groupName)) {
+				sql.append(" and t7.name like '%"+groupName+"%'");
+			}
+			if (!StringUtils.isEmpty(title)) {
+				sql.append(" and t1.title like '%"+title+"%'");
+			}
+			sql.append(" 		and t1.user_id =t6.id and t6.group_id =t7.id ");
+			sql.append(" 	) a1 LEFT JOIN  ");
+			sql.append(" 	(select uid,sum(pv) pv,sum(uv), uv, ");
+			sql.append(" 	 SUM(expire) / (SUM(pv) * 1000) AS avgExpireRate, ");
+			sql.append("    SUM(forward)/ SUM(pv) AS forwardRate, ");
+			sql.append(" 		sum(share)/SUM(pv)  AS shareRate, ");
+			sql.append("     SUM(playpercent)/SUM(play) as  avgplayRate, ");
+			sql.append("      SUM(over_eight)/SUM(play)  as playEndRate,sum(share) as shareCount ");
+			sql.append("   from t_statics GROUP BY  uid)  t2 on a1.uid=t2.uid ");
+			sql.append(" 	LEFT JOIN  ");
+			sql.append(" 		(select post_id,COUNT(id) favor  from kone.favorites GROUP BY  post_id) t3 on  a1.id=t3.post_id ");
+			sql.append(" LEFT JOIN  ");
+			sql.append(" 		(select post_id,COUNT(id) likes  from kone.likes GROUP BY  post_id) t4 on a1.id =t4.post_id ");
+			sql.append(" LEFT JOIN  ");
+			sql.append(" 		(select post_id,COUNT(id)  comm from kone.comments GROUP BY  post_id) t5  on a1.id =t5.post_id ");
+			sql.append(" order by a1.id	");
+			System.out.println(sql.toString());
+			return jdbcHelper.queryForPageBean(sql.toString(), PostStaticInfo.class, page, limit);
+			
 		}
 
 		private String formatDateBySplit(String date) {
@@ -426,17 +343,45 @@ public class ArticleDaoImpl implements ArticleDao {
 			 logger.info("t_uid_score 插入成功");*/
 			
 		}
+		
+		
+		/*
+		 * 先去协同推荐数据表里面去取
+		 * 不足3个的 去热门表里去取
+		 */
+		    
+		@Override
+		public List<Integer> getMostSimilarity(int userId,int postId) {
+			
+			if (userId==0) {
+			String sql="select sml_post_id from t_recommend_post_group  where post_id="+postId+" order by sml_value desc LIMIT 0,3";
+			 Set<Integer> set= jdbcHelper.queryListToSet(sql);
+			 return new ArrayList<Integer>(set);
+			}
+			
+			/*String sql="select sml_post_id  from t_recommend_post_group "
+					+ "where post_id ="+id+"  and group_id="+gid+"  order by sml_value desc  LIMIT 0,3";
+			 Set<Integer> set= jdbcHelper.queryListToSet(sql);*/
+			String sql="SELECT SML_POST_ID  FROM t_recommend_post  WHERE USER_ID="+userId +"  and status=0  order by up_at desc limit 0,3  ";
+			List<Integer> listCF =jdbcTemplate.queryForList(sql, Integer.class);
+			int cfSize=listCF.size();
+			List<Integer> listNew=new ArrayList<>();
+			if (listCF==null||listCF.size()==0) {//没有产生推荐结果  去人额  
+				//如果协同推荐没有结果 就推荐热门
+				sql="select  t2.id from t_uid_score t1,kone.posts t2 where t1.uid =t2.uid  order by score desc limit 0,"+(3-cfSize);
+				listNew=jdbcTemplate.queryForList(sql, Integer.class);
+			}
+			listCF.addAll(listNew); //不够三个的热门来凑
+			return listCF;
+		}
 
 		
 		    
 		@Override
-		public List<Integer> getMostSimilarity(int id) {
-			String sql="select sml_post_id  from t_recommend_post where post_id ="+id+"  order by sml_value desc  LIMIT 0,3";
-			 Set<Integer> set= jdbcHelper.queryListToSet(sql);
-			return new ArrayList<Integer>(set);
+		public void saveToPytonTagTemp(String string, String id) {
+			String sql="insert IGNORE into python_tag_temp(id,content,status)values("+id+",'"+string+"',0)";
+			jdbcTemplate.update(sql);
 		}
 
-		
-		
 
 }

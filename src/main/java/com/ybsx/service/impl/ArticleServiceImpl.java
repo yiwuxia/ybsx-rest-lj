@@ -1,5 +1,6 @@
 package com.ybsx.service.impl;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.redare.devframework.common.pojo.Page;
 import com.ybsx.dao.ArticleDao;
+import com.ybsx.entity.PostStaticInfo;
 import com.ybsx.entity.StaticPUV;
 import com.ybsx.entity.StaticVo;
 import com.ybsx.entity.StaticVo2;
@@ -44,33 +46,16 @@ public class ArticleServiceImpl implements ArticleService {
 
 
 
-	
-	    /* (非 Javadoc)
-	    * 
-	    * 
-	    * @param name
-	    * @param startDate
-	    * @param endDate
-	    * @param page
-	    * @param limit
-	    * @see com.ybsx.service.ArticleService#getVedioPage(java.lang.String, java.lang.String, java.lang.String, int, int)
-	    */
 	    
 	@Override
-	public Page<StaticVo2> getVedioPage(String name, String startDate, String endDate,String type, String title,int page, int limit) {
-		return articleDao.getVedioPage( name,  startDate,  endDate,  type,title,page,  limit);
+	public Page<PostStaticInfo> getVedioPage(int type, int page, int limit, String groupName, String title,
+			String author, String endDate, String startDate) {
+		return articleDao.getVedioPage(type ,page, limit,groupName,title,author,endDate,startDate);
 	}
 
 
 
 	
-	    /* (非 Javadoc)
-	    * 
-	    * 
-	    * @param tag
-	    * @param str
-	    * @see com.ybsx.service.ArticleService#saveTags(java.lang.String, java.lang.String)
-	    */
 	    
 	@Override
 	public void saveTags(String tag, String str) {
@@ -80,13 +65,6 @@ public class ArticleServiceImpl implements ArticleService {
 
 
 	
-	    /* (非 Javadoc)
-	    * 
-	    * 
-	    * @param result
-	    * @return
-	    * @see com.ybsx.service.ArticleService#getTagIds(java.lang.String)
-	    */
 	    
 	@Override
 	public List<String> getTagIds(String tagsSplitByComma) {
@@ -116,11 +94,39 @@ public class ArticleServiceImpl implements ArticleService {
 	@Override
 	public String getArticheTagsById(String id) {
 		List<String> list= articleDao.getArticheTagsById(Integer.valueOf(id));
-	    String tags=BDKeyExtract.keyExtract(list.get(0),list.get(1));
+		String title=list.get(0); 
+		String content=list.get(1);
+		/*
+		 * 请求参数的长度限制  title 80 字节;content 65535字节;
+		 */
+		 if (content.length()>20000) {
+			 content=content.substring(0,20000);
+		}
+		 if (title.length()>=26) {
+			 title=title.substring(0,26);
+		}
+		content=BDKeyExtract.removeHtmlTag(content);
+	    String tags=BDKeyExtract.keyExtract(title,content);
+	    System.out.println("baidu is no work");
+	    if (tags.length()==0) {//百度没有提取到标签
+	    	articleDao.saveToPytonTagTemp(title+","+content,id);///home/hadoop/script
+	    	execPy();
+	    	tags="";
+		}
 		return tags;
 	}
 
-
+	   public static void execPy() {
+	        Process proc = null;
+	        try {
+	            proc = Runtime.getRuntime().exec("python3  /home/hadoop/script/tagExract.py ");
+	            proc.waitFor();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        } catch (InterruptedException e) {
+	            e.printStackTrace();
+	        }
+    }
 
 	    
 	@Override
@@ -140,19 +146,11 @@ public class ArticleServiceImpl implements ArticleService {
 
 
 
-	
-	    /* (非 Javadoc)
-	    * 
-	    * 
-	    * @param id
-	    * @return
-	    * @see com.ybsx.service.ArticleService#getMostSimilarity(int)
-	    */
 	    
-	@Override
-	public List<Integer> getMostSimilarity(int id) {
-		return articleDao.getMostSimilarity(id);
-	}
+
+
+
+	
 
 
 

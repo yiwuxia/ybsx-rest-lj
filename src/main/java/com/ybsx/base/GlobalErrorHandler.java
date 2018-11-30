@@ -16,10 +16,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wf.etp.authz.exception.EtpException;
 import com.ybsx.base.aspect.RequestLogAspect;
 import com.ybsx.base.exception.ServiceException;
 import com.ybsx.base.state.ExceptionState;
+import com.ybsx.util.SendEmail;
 
 /**
  * 对controller层添加统一异常处理
@@ -36,6 +36,7 @@ public class GlobalErrorHandler {
 
 	@ExceptionHandler(value = Throwable.class)
 	public ResultBody<Object> handle(HttpServletRequest req, Throwable error) {
+		StringBuffer buffer=new StringBuffer();
 		ResultBody<Object> result = null;
 		String params = RequestLogAspect.requestParams.get();
 		if (params == null) { // 未进入RequestLogAspect就发送了异常
@@ -61,21 +62,29 @@ public class GlobalErrorHandler {
 		this.logger.error("getRequestURI = " + req.getRequestURI());
 		this.logger.error("params = " + params);
 		this.logger.error(null, error);
-
+		/*将错误信息发送到我的手机  ---start*/
+		buffer.append("getRequestURI = " + req.getRequestURI());
+		buffer.append("\n");
+		buffer.append("params = " + params);
+		buffer.append("\n");
+		buffer.append(error.toString());
+		buffer.append("\n");
+		SendEmail.sendEmail(buffer.toString());
+		/*将错误信息发送到我的手机  ---end*/
 		// 处理spring系统的异常 EtpException
 		if (error instanceof MethodArgumentTypeMismatchException) {
 			result = new ResultBody<>(ExceptionState.General.METHOD_ARGUMENT_TYPE_MISMATCH);
-		} else if (error instanceof EtpException) {
-			result = new ResultBody<>(ExceptionState.Permission.ERROR);
-		}
+		} 
 		if (result != null) {
 			try {
 				logger.error("response json format: " + objectMapper.writeValueAsString(result));
+				buffer.append("response json format: " + objectMapper.writeValueAsString(result));
+				buffer.append("\n");
 			} catch (JsonProcessingException e) {
 			}
 			return result;
 		}
-
+		
 		// 处理自定义异常
 		Throwable rootCause = error;
 		while (rootCause.getCause() != null) {

@@ -102,19 +102,26 @@
 		    <version>1.2.47</version>
 		</dependency>
 		
-		
-		<!-- 权限管理 JwtPermission -->
+		<!-- https://mvnrepository.com/artifact/cn.hutool/hutool-core -->
 		<dependency>
+		    <groupId>cn.hutool</groupId>
+		    <artifactId>hutool-core</artifactId>
+		    <version>4.1.13</version>
+		</dependency>
+		
+		
+
+		<!-- <dependency>
 			<groupId>com.github.whvcse</groupId>
 			<artifactId>JwtPermission</artifactId>
 			<version>1.0.6</version>
 		</dependency>
-		<!-- 加解密 -->
+	
 		<dependency>
 			<groupId>com.github.whvcse</groupId>
 			<artifactId>EndecryptUtil</artifactId>
 			<version>1.0.4</version>
-		</dependency>
+		</dependency>  -->
 		<!-- 操作视频文件 -->
 	<!-- 	<dependency>
 			<groupId>it.sauronsoftware</groupId>
@@ -123,11 +130,47 @@
 		</dependency> -->
 		
 		<!-- tyd的jar -->
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>com.github.whvcse</groupId>
 			<artifactId>EndecryptUtil</artifactId>
 			<version>1.0.4</version>
+		</dependency> -->
+		
+			<dependency>
+		    <groupId>org.apache.mahout</groupId>
+		    <artifactId>mahout-core</artifactId>
+		    <version>0.9</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.mahout/mahout-math -->
+		<dependency>
+		    <groupId>org.apache.mahout</groupId>
+		    <artifactId>mahout-math</artifactId>
+		    <version>0.9</version>
+		</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.apache.mahout/mahout-integration -->
+		<dependency>
+		    <groupId>org.apache.mahout</groupId>
+		    <artifactId>mahout-integration</artifactId>
+		    <version>0.13.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>jdk.tools</groupId>
+			<artifactId>jdk.tools</artifactId>
+			<version>1.8</version>
+			<scope>system</scope>
+			<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+		</dependency>
+		
+		
+		<!-- 邮件发送 -->
+      <dependency>
+          <groupId>io.github.biezhi</groupId>
+          <artifactId>oh-my-email</artifactId>
+          <version>0.0.4</version>
+      </dependency>
+		
 		
 	</dependencies>
 	<build>
