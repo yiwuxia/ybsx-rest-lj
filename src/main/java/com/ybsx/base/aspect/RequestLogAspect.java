@@ -63,9 +63,9 @@ public class RequestLogAspect {
 		HttpServletRequest request = attributes.getRequest();
 		logger.info("\n");
 		logger.info("URL: " + request.getRequestURL().toString());
-		logger.info("request method: " + request.getMethod());
-		logger.info("remote address: " + request.getRemoteAddr());
-		logger.info("remote port: " + request.getRemotePort());
+		//logger.info("request method: " + request.getMethod());
+		//logger.info("remote address: " + request.getRemoteAddr());
+		//logger.info("remote port: " + request.getRemotePort());
 		Signature signature = joinPoint.getSignature();
 		logger.info("CLASS_METHOD: " + signature.getDeclaringTypeName() + "." + signature.getName());
 		String params = Arrays.toString(joinPoint.getArgs());

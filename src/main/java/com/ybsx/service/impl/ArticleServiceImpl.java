@@ -14,6 +14,7 @@ import com.ybsx.entity.StaticVo;
 import com.ybsx.entity.StaticVo2;
 import com.ybsx.service.ArticleService;
 import com.ybsx.util.BDKeyExtract;
+import com.ybsx.util.StringUtil;
 
 /*
  * 
@@ -50,7 +51,15 @@ public class ArticleServiceImpl implements ArticleService {
 	@Override
 	public Page<PostStaticInfo> getVedioPage(int type, int page, int limit, String groupName, String title,
 			String author, String endDate, String startDate) {
-		return articleDao.getVedioPage(type ,page, limit,groupName,title,author,endDate,startDate);
+		Page<PostStaticInfo> pages =articleDao.getVedioPage(type ,page, limit,groupName,title,author,endDate,startDate);
+		for (PostStaticInfo info : pages.getResult()) {
+			 info.setAvgExpireRate(StringUtil.transSecondToMS(Double.valueOf(info.getAvgExpireRate())));
+			 info.setForwardRate(StringUtil.tranToPercent(Double.valueOf(info.getForwardRate())));
+			 info.setShareRate(StringUtil.tranToPercent(Double.valueOf(info.getShareRate())));
+			 info.setAvgPlayRate(StringUtil.tranToPercent(Double.valueOf(info.getAvgPlayRate())));
+			 info.setPlayEndRate(StringUtil.tranToPercent(Double.valueOf(info.getPlayEndRate())));
+		}
+		return pages;
 	}
 
 
@@ -130,8 +139,8 @@ public class ArticleServiceImpl implements ArticleService {
 
 	    
 	@Override
-	public Page<StaticVo2> getDetailByDate(String uid, String startDate, String endDate, int page, int limit,String type) {
-		Page<StaticVo2> pages=articleDao.getDetailByDate( uid,  startDate,  endDate,  page,  limit,type);
+	public Page<PostStaticInfo> getDetailByDate(String uid, String startDate, String endDate, int page, int limit,String type) {
+		Page<PostStaticInfo> pages=articleDao.getDetailByDate( uid,  startDate,  endDate,  page,  limit,type);
 		return pages;
 	}
 

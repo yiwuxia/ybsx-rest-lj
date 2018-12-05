@@ -16,8 +16,6 @@ import org.springframework.stereotype.Repository;
 
 import com.redare.devframework.common.pojo.Page;
 import com.redare.devframework.common.spring.db.SpringJdbcHelper;
-import com.sun.jersey.core.util.StringIgnoreCaseKeyComparator;
-import com.sun.tools.corba.se.idl.constExpr.And;
 import com.ybsx.dao.ArticleDao;
 import com.ybsx.entity.PostStaticInfo;
 import com.ybsx.entity.Static;
@@ -221,7 +219,7 @@ public class ArticleDaoImpl implements ArticleDao {
 			
 			StringBuffer sql = new StringBuffer();
 			sql.append(" SELECT   ");
-			sql.append(" 	a1.name groupName,a1.id,a1.uid,a1.title,IFNULL(t2.pv,0) pv,IFNULL(t2.uv,0)uv,"
+			sql.append(" 	a1.name groupName,a1.id,a1.uid,a1.title,IFNULL(t2.pv,0) pv,IFNULL(t2.uv,0)uv,a1.status,"
 					+ "IFNULL(t3.favor,0) favorNum, ");
 			sql.append("   IFNULL(t4.likes,0)  likeNum,IFNULL(t5.comm,0) commentNum, ");
 			sql.append("  a1.created_at  createdAt,a1.author, ");
@@ -231,7 +229,7 @@ public class ArticleDaoImpl implements ArticleDao {
 			sql.append(" IFNULL(t2.avgplayRate,0) avgplayRate, ");
 			sql.append(" IFNULL(t2.playEndRate,0) playEndRate ,IFNULL(shareCount,0) shareCount");//
 			sql.append(" 	from ( ");
-			sql.append(" 	select t7.name,t1.id,t1.uid,t1.title,t1.created_at,t6.name as author from kone.posts t1, ");
+			sql.append(" 	select t7.name,t1.id,t1.uid,t1.title,t1.created_at,t6.nickname as author,t1.status from kone.posts t1, ");
 			sql.append(" 		kone.users t6, ");
 			sql.append(" 		kone.groups t7 ");
 			sql.append(" 	   where  t1.type=  "+type);
@@ -242,7 +240,7 @@ public class ArticleDaoImpl implements ArticleDao {
 				sql.append(" and t1.created_at<="+endDate);
 			}
 			if (!StringUtils.isEmpty(author)) {
-				sql.append(" and t6.name like '%"+author+"%'");
+				sql.append(" and t6.nickname like '%"+author+"%'");
 			}
 			if (!StringUtils.isEmpty(groupName)) {
 				sql.append(" and t7.name like '%"+groupName+"%'");
@@ -265,8 +263,8 @@ public class ArticleDaoImpl implements ArticleDao {
 			sql.append(" 		(select post_id,COUNT(id) likes  from kone.likes GROUP BY  post_id) t4 on a1.id =t4.post_id ");
 			sql.append(" LEFT JOIN  ");
 			sql.append(" 		(select post_id,COUNT(id)  comm from kone.comments GROUP BY  post_id) t5  on a1.id =t5.post_id ");
-			sql.append(" order by a1.id	");
-			System.out.println(sql.toString());
+			sql.append(" order by a1.created_at	 desc ");
+			//System.out.println(sql.toString());
 			return jdbcHelper.queryForPageBean(sql.toString(), PostStaticInfo.class, page, limit);
 			
 		}
@@ -279,9 +277,29 @@ public class ArticleDaoImpl implements ArticleDao {
 		    
 		
 		@Override
-		public Page<StaticVo2> getDetailByDate(String uid, String startDate, String endDate,
+		public Page<PostStaticInfo> getDetailByDate(String uid, String startDate, String endDate,
 				int page, int limit,String type)
 		{
+			StringBuffer sql = new StringBuffer();
+			sql.append(" SELECT ");
+			sql.append(" 	uv, ");
+			sql.append(" 	pv, ");
+			sql.append(" 	likes_num likeNum, ");
+			sql.append(" 	favor_num favorNum, ");
+			sql.append(" 	commnet_num commentNum, ");
+			sql.append(" 	shareCount shareCount, ");
+			sql.append(" 	datetime, ");
+			sql.append(" 	avgExpireRate avgExpireRate, ");
+			sql.append(" 	forwardRate forwardRate, ");
+			sql.append(" 	shareRate shareRate, ");
+			sql.append(" 	avgPlayRate avgPlayRate, ");
+			sql.append(" 	playEndRate  playEndRate ");
+			sql.append(" FROM ");
+			sql.append(" 	t_post_static ");
+			sql.append(" WHERE ");
+			sql.append(" 	post_id =  "+Integer.valueOf(uid));
+			return jdbcHelper.queryForPageBean(sql.toString(), PostStaticInfo.class, page, limit);
+			/*
 			StringBuffer sql=new StringBuffer();
 			 sql.append(" SELECT a.datetime AS DATETIME,"
 			 		+ " CONCAT('http://v.1234tv.com/', p.uid) AS requestUrl, "
@@ -327,7 +345,7 @@ public class ArticleDaoImpl implements ArticleDao {
 			 logger.info(sql.toString());
 			 System.out.println(sql.toString());
 			return  jdbcHelper.queryForPageBean(sql.toString(), StaticVo2.class, page, limit);
-		}
+		*/}
 
 		
 		    /* (非 Javadoc)

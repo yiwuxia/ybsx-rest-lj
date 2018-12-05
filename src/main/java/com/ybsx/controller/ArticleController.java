@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +21,8 @@ import com.redare.devframework.common.pojo.CommonResult;
 import com.redare.devframework.common.pojo.Page;
 import com.ybsx.dao.ArticleDao;
 import com.ybsx.entity.PostStaticInfo;
-import com.ybsx.entity.ResultMap;
 import com.ybsx.entity.StaticPUV;
 import com.ybsx.entity.StaticVo;
-import com.ybsx.entity.StaticVo2;
 import com.ybsx.service.ArticleService;
 import com.ybsx.util.BDKeyExtract;
 import com.ybsx.util.StringUtil;
@@ -98,13 +95,9 @@ public class ArticleController {
 				){
 			
 			Page<PostStaticInfo> pages=	articleService.getVedioPage(type ,page, limit,groupName,title,author,endDate,startDate);
-			for (PostStaticInfo info : pages.getResult()) {
-				 info.setAvgExpireRate(StringUtil.transSecondToMS(Double.valueOf(info.getAvgExpireRate())));
-				 info.setForwardRate(StringUtil.tranToPercent(Double.valueOf(info.getForwardRate())));
-				 info.setShareRate(StringUtil.tranToPercent(Double.valueOf(info.getShareRate())));
-				 info.setAvgPlayRate(StringUtil.tranToPercent(Double.valueOf(info.getAvgPlayRate())));
-				 info.setPlayEndRate(StringUtil.tranToPercent(Double.valueOf(info.getPlayEndRate())));
-			}
+			System.out.println(System.currentTimeMillis());
+			
+			System.out.println(System.currentTimeMillis());
 			return CommonResult.returnSuccessWrapper(pages);
 		}
 	
@@ -158,19 +151,16 @@ public class ArticleController {
 		 */
 		
 		@PostMapping("/getDetailByDate")
-		public ResultMap getDetailByDate(
-				@RequestParam(value="uid") String uid,//uid 图文/视频 唯一标识
-				@RequestParam(value="type") String type,//uid 图文/视频 唯一标识
+		public CommonResult getDetailByDate(
+				@RequestParam(value="id") String uid,//uid 图文/视频 唯一标识
+				//@RequestParam(value="type") String type,//uid 图文/视频 唯一标识
 				String startDate,
 				String endDate,
 				@RequestParam(value="page", defaultValue="1") int page,
 				@RequestParam(value="limit", defaultValue="10") int limit
 				)  {
-			Page<StaticVo2> pages=  articleService.getDetailByDate(uid,startDate,endDate,page,limit,type);
-		  	ResultMap<StaticVo2> resultMap=ResultMap.getSuccessResultMap();
-		  	resultMap.setCount(pages.getTotalCount());
-		  	resultMap.setData(pages.getResult());
-			return resultMap;
+			Page<PostStaticInfo> pageResult=  articleService.getDetailByDate(uid,"","",page,limit,"");
+			return CommonResult.returnSuccessWrapper(pageResult);
 		} 
 		
 		/*

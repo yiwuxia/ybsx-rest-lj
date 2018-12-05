@@ -66,7 +66,7 @@ public interface ArticleDao {
 
 		List<String>  getArticheTagsById(Integer valueOf);
 
-		Page<StaticVo2> getDetailByDate(String uid, String startDate, String endDate, int page, int limit,String type);
+		Page<PostStaticInfo> getDetailByDate(String uid, String startDate, String endDate, int page, int limit,String type);
 
 		void insertRecordToScore(int postid);
 
