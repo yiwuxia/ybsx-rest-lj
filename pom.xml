@@ -103,12 +103,12 @@
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/cn.hutool/hutool-core -->
-		<dependency>
+		 <dependency>
 		    <groupId>cn.hutool</groupId>
 		    <artifactId>hutool-core</artifactId>
 		    <version>4.1.13</version>
-		</dependency>
-		
+		</dependency> 
+				 
 		
 
 		<!-- <dependency>
